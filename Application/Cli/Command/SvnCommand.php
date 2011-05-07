@@ -55,7 +55,6 @@ abstract class SvnCommand extends EnvironmentCommand {
 				$xml = $this->svnxml('svn info');
 				$this->base = $xml->entry->repository->root;
 			} catch (\Exception $e) {
-//				$this->output->write($e->getMessage(), true);
 				$this->output->writeln('Failed!');
 				throw new \Exception("Could not calculate SVN Base URL from current directory.");
 			}
@@ -66,22 +65,24 @@ abstract class SvnCommand extends EnvironmentCommand {
 	}
 
 	public function createBranch($source, $branch, $ticket=null, $branchtype='feature branch', $user_message='') {
-		$source_branch = $this->getSvnBaseUrl() . '/' . $source;
+		if (\strpos($source, $this->getSvnBaseUrl()) !== 0) $source = $this->getSvnBaseUrl() . '/' . $source;
+		if (\strpos($branch, $this->getSvnBaseUrl()) !== 0) $branch = $this->getSvnBaseUrl() . '/' . $branch;
 		if ($this->output)
-			$this->output->write('Creating branch ' . $branch . ' for issue #' . $ticket . ' from ' . $source_branch . '... ');
+			$this->output->write('Creating branch ' . $branch . ' for issue #' . $ticket . ' from ' . $source . '... ');
 		if ($branchtype)
 			$branchtype = \ucfirst($branchtype);
-		$message = "@@BRANCH $source_branch\n$branchtype";
+		$message = "@@BRANCH $source\n$branchtype";
 		if ($ticket)
 			$message .= " Re #$ticket";
 		if (\strlen($user_message) === 0)
 			$message .= ".";
 		else
 			$message .= ":\n" . \str_replace(array("\n", '"'), array("\n  ", '\\"'), $user_message);
-		$result = $this->exec('svn cp ' . $source_branch . ' ' . $branch . ' -m "' . $message . '"');
 
-		if ($result && $this->output)
-			$this->output->writeln('Success!');
+		$result = $this->exec('svn cp ' . $source . ' ' . $branch . ' -m "' . $message . '"');
+
+		if ($this->output)
+			$this->output->writeln('Success.');
 	}
 
 	public function switchTo($branch) {
@@ -101,7 +102,7 @@ abstract class SvnCommand extends EnvironmentCommand {
 			$this->output->writeln('Done.');
 		}
 
-		// Else if existing changes: Commit, revert or cancel.
+		// If existing changes: Commit, revert or cancel.
 		$status = $this->status();
 		if ($status !== false && isset($status->wc->status)) {
 			throw new \Exception("Current working copy has local modifications.");
@@ -111,10 +112,6 @@ abstract class SvnCommand extends EnvironmentCommand {
 		$this->exec('svn switch ' . $branch);
 		$this->output->writeln('Switched to ' . $branch);
 	}
-
-//	public function checkout($branch) {
-//		$this->exec('svn checkout ' . $branch . ' .');
-//	}
 
 	/**
 	 * Get the svn info of the current dir.
@@ -151,6 +148,26 @@ abstract class SvnCommand extends EnvironmentCommand {
 		$exists = $this->exec('svn ls ' . $branch) === 0;
 		if ($this->output) $exists ? $this->output->writeln('Found.') : $this->output->writeln('Not found.');
 		return $exists;
+	}
+
+	/**
+	 * Return a list of all directories in $url
+	 *
+	 * @param string $url
+	 * @return array(\SimpleXMLElement)
+	 */
+	public function listDirs($url) {
+		try {
+			$tags = $this->svnxml('svn ls ' . $url);
+		} catch (Exception $e) {
+			return array();
+		}
+
+		if (!isset($tags->list)) {
+			return array();
+		} else {
+			return $tags->list->children();
+		}
 	}
 
 	

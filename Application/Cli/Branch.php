@@ -20,6 +20,7 @@ class Branch extends Application {
 
 		$this->addCommands(array(
 				new Command\Feature(),
+				new Command\CreateFix(),
 		));
 	}
 

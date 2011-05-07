@@ -23,7 +23,7 @@ class Feature extends SvnCommand {
 			->setDescription('Create and checkout a feature branch')
 			->setDefinition(array(
 					new InputArgument('issue', InputArgument::REQUIRED, 'The feature\'s issue number.'),
-					new InputOption('message', 'm', InputOption::VALUE_REQUIRED, 'A brief message describing the issue.', ''),
+					new InputOption('message', 'm', InputOption::VALUE_REQUIRED, 'A brief message describing the issue.'),
 					new InputOption('source', 's', InputOption::VALUE_REQUIRED, 'The source directory in the repositiory to branch from.', 'trunk'),
 			))
 			->setHelp(sprintf(
