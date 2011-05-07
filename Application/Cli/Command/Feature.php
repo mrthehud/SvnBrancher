@@ -7,7 +7,7 @@ use Symfony\Component\Console\Input\InputArgument,
  Symfony\Component\Console;
 
 /**
- * Feature branch comand
+ * Feature branch command
  *
  * @author James Hudson <james@twpagency.com>
  * @since 07-May-2011
@@ -23,7 +23,7 @@ class Feature extends SvnCommand {
 			->setDescription('Create and checkout a feature branch')
 			->setDefinition(array(
 					new InputArgument('issue', InputArgument::REQUIRED, 'The feature\'s issue number.'),
-					new InputArgument('message', InputArgument::OPTIONAL, 'A brief message describing the issue.', null),
+					new InputOption('message', 'm', InputOption::VALUE_REQUIRED, 'A brief message describing the issue.', ''),
 					new InputOption('source', 's', InputOption::VALUE_REQUIRED, 'The source directory in the repositiory to branch from.', 'trunk'),
 			))
 			->setHelp(sprintf(
@@ -44,7 +44,7 @@ class Feature extends SvnCommand {
 		$branch = $this->getSvnBaseUrl() . '/branches/' . $issue;
 
 		if (!$this->exists($branch)) {
-			$this->createBranch($input->getOption('source'), $branch, $input->getArgument('issue'));
+			$this->createBranch($input->getOption('source'), $branch, $input->getArgument('issue'), $input->getOption('message'));
 		}
 
 		$this->switchTo($branch);
