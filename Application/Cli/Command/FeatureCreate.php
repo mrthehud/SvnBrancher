@@ -7,12 +7,12 @@ use Symfony\Component\Console\Input\InputArgument,
  Symfony\Component\Console;
 
 /**
- * Feature branch command
+ * Feature branch creation command
  *
  * @author James Hudson <james@twpagency.com>
  * @since 07-May-2011
  */
-class Feature extends SvnCommand {
+class FeatureCreate extends SvnCommand {
 
 	/**
 	 * Configure command, set parameters definition and help.

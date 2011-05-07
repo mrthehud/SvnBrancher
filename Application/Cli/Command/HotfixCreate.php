@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputArgument,
  * @author James Hudson <james@twpagency.com>
  * @since 07-May-2011
  */
-class CreateFix extends SvnCommand {
+class HotfixCreate extends SvnCommand {
 
 	/**
 	 * Configure command, set parameters definition and help.
