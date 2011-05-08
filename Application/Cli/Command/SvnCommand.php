@@ -48,12 +48,12 @@ abstract class SvnCommand extends EnvironmentCommand {
 	 * @return string The SVN repository URL
 	 */
 	public function getSvnBaseUrl() {
-		if ($this->base === null) {
+		if (!$this->base) {
 			if ($this->output)
 				$this->output->write('Calculating SVN Base URL... ');
 			try {
 				$xml = $this->svnxml('svn info');
-				$this->base = $xml->entry->repository->root;
+				$this->base = (string) $xml->entry->repository->root;
 			} catch (\Exception $e) {
 				$this->output->writeln('Failed!');
 				throw new \Exception("Could not calculate SVN Base URL from current directory.");
