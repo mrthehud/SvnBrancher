@@ -100,6 +100,7 @@ abstract class SvnCommand extends EnvironmentCommand {
 				throw new \Exception("Could not checkout branch $branch.");
 			}
 			$this->output->writeln('Done.');
+			return;
 		}
 
 		// If existing changes: Commit, revert or cancel.
@@ -109,7 +110,8 @@ abstract class SvnCommand extends EnvironmentCommand {
 		}
 
 		// Switch
-		$this->exec('svn switch ' . $branch);
+		$output->writeln('Switching to branch...');
+		\passthru('svn switch ' . $branch);
 		$this->output->writeln('Switched to ' . $branch);
 	}
 
@@ -159,7 +161,7 @@ abstract class SvnCommand extends EnvironmentCommand {
 	public function listDirs($url) {
 		try {
 			$tags = $this->svnxml('svn ls ' . $url);
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			return array();
 		}
 

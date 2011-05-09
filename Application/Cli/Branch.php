@@ -19,6 +19,7 @@ class Branch extends Application {
 		parent::__construct('SVN / Assembla branch creator', '1.0');
 
 		$this->addCommands(array(
+				new Command\FeatureList(),
 				new Command\FeatureCreate(),
 				new Command\FeatureComplete(),
 				new Command\HotfixCreate(),
