@@ -44,7 +44,7 @@ class FeatureList extends SvnCommand {
 		// Generate the table header, data and widths.
 		$branches = array(array('Name', 'Author', 'Date', 'Revision'));
 		$widths = array();
-		foreach($branches[0] as $row => $column) @$widths[$row][] = \strlen($column);
+		foreach($branches[0] as $column => $value) @$widths[$column] = max(@$widths[$column], \strlen($value));
 		foreach ($this->listDirs($url) as $entry) {
 			$branch = array(
 					(string) $entry->name,
@@ -53,21 +53,25 @@ class FeatureList extends SvnCommand {
 					(string) $entry->commit->attributes()->revision,
 			);
 			$branches[] = $branch;
-			foreach($branch as $row => $column) @$widths[$row][] = \strlen($column);
+			foreach($branch as $column => $value) @$widths[$column] = max(@$widths[$column], \strlen($value));
 		}
 
-		// Print the table.
-		$hrs = array();
-		$format = '|';
-		foreach($branches[0] as $row => $column) $format .= ' %-' . max($widths[$row]) .'s |';
-		$head = \vsprintf($format, \array_shift($branches));
-		$output->writeln('|' . sprintf("%'-" . (\strlen($head) - 2) . 's', '-') . '|');
-		$output->writeln($head);
-		$output->writeln('|' . sprintf("%'-" . (\strlen($head) - 2) . 's', '-') . '|');
+		// Draw the table.
+		$line = array();
+		foreach ($widths as $column => $width) $line[] = \str_pad('', $width, '-');
+		$line = 'l-' . \implode('-m-', $line) . '-r';
+		$s = array('l', 'm', 'r');
+		$output->writeln(\str_replace($s, array('┌','┬','┐') , $line));
+		foreach(array_shift($branches) as $column => $value) $output->write('│ ' . \str_pad($value, $widths[$column], ' ') . ' ');
+		$output->writeln('│');
+		$output->writeln(\str_replace($s, array('├','┼','┤') , $line));
 		foreach($branches as $row => $branch) {
-			$output->writeln(\vsprintf($format, $branch));
+			foreach($branch as $column => $value) {
+				$output->write('│ ' . \str_pad($value, $widths[$column], ' ') . ' ');
+			}
+			$output->writeln('│');
 		}
-		$output->writeln('|' . sprintf("%'-" . (\strlen($head) - 2) . 's', '-') . '|');
+		$output->writeln(\str_replace($s, array('└','┴','┘') , $line));
 	}
 
 }
